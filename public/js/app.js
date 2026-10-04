@@ -1,4 +1,4 @@
-﻿import { fetchNewspapers, fetchNews } from './api.js';
+import { fetchNewspapers, fetchNews } from './api.js';
 import { esc, formatToday, relativeTime, debounce } from './util.js';
 import { t } from './i18n.js';
 import { HomeView, SectionView, SearchView, StateView, LoadingView, PAGE } from './components/views.js';

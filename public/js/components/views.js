@@ -1,4 +1,4 @@
-﻿import { esc, norm } from '../util.js';
+import { esc, norm } from '../util.js';
 import { t } from '../i18n.js';
 import { Card, LatestItem } from './card.js';
 

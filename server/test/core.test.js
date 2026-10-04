@@ -1,4 +1,4 @@
-﻿import test from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseFeed, toArticle } from '../lib/rss.js';
 import { toPlainText, safeUrl } from '../lib/text.js';

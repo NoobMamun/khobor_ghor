@@ -1,4 +1,4 @@
-﻿// Feed order matters: when an article appears in two feeds, the first wins,
+// Feed order matters: when an article appears in two feeds, the first wins,
 // so more specific feeds (politics) come before broader ones (bangladesh).
 const f = (path, section) => ({ url: `https://www.thedailystar.net/${path}/rss.xml`, section });
 

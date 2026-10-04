@@ -1,4 +1,4 @@
-﻿# খবরঘর — Bangladesh News Hub
+# খবরঘর — Bangladesh News Hub
 
 A news discovery portal: pick a newspaper, browse its latest headlines by section, search, and open the original article on the publisher's site. Currently: **Prothom Alo** (Bangla) and **The Daily Star** (English).
 

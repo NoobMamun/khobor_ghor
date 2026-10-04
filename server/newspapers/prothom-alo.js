@@ -1,4 +1,4 @@
-﻿// Prothom Alo — one rich RSS feed (images, Bangla categories). Sections are
+// Prothom Alo — one rich RSS feed (images, Bangla categories). Sections are
 // derived from the first segment of the article URL.
 export default {
   id: 'prothom-alo',

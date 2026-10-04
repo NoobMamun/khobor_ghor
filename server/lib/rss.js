@@ -1,4 +1,4 @@
-﻿import { XMLParser } from 'fast-xml-parser';
+import { XMLParser } from 'fast-xml-parser';
 import { textOf, toPlainText, safeUrl } from './text.js';
 import { SECTION_BY_ID } from '../sections.js';
 

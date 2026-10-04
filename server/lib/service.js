@@ -1,4 +1,4 @@
-﻿import { Cache } from './cache.js';
+import { Cache } from './cache.js';
 import { fetchText } from './http.js';
 import { parseFeed, toArticle } from './rss.js';
 import { SECTIONS } from '../sections.js';

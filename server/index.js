@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,8 +47,14 @@ app.get('/api/news/:id', async (req, res) => {
 
 app.use(express.static(publicDir, { extensions: ['html'], maxAge: '5m' }));
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`News portal running at http://localhost:${port}`);
-  startNotifier();
-});
+export default app; // used by api/index.js when deployed on Vercel (serverless)
+
+// Locally / on an always-on host we run a real server. On Vercel the platform calls the
+// exported app per request, so we must not listen (and a background timer would not survive).
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`News portal running at http://localhost:${port}`);
+    startNotifier();
+  });
+}
