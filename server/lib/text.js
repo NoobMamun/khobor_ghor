@@ -1,5 +1,31 @@
-import sanitizeHtml from 'sanitize-html';
-import { decodeHTML } from 'entities';
+import { Parser } from 'htmlparser2';
+
+// Keep only the text of an HTML fragment: tags are dropped, script/style contents are
+// discarded, entities decoded once. (htmlparser2 is ESM-only-safe on every Node runtime.)
+const SKIP = new Set(['script', 'style', 'noscript', 'textarea', 'option']);
+const BREAKS = new Set(['br', 'p', 'div', 'li', 'h1', 'h2', 'h3']);
+function stripTags(html) {
+  let out = '';
+  let skipDepth = 0;
+  const parser = new Parser(
+    {
+      onopentag(name) {
+        if (SKIP.has(name)) skipDepth++;
+        else if (BREAKS.has(name)) out += ' ';
+      },
+      onclosetag(name) {
+        if (SKIP.has(name) && skipDepth) skipDepth--;
+      },
+      ontext(text) {
+        if (!skipDepth) out += text;
+      },
+    },
+    { decodeEntities: true },
+  );
+  parser.write(html);
+  parser.end();
+  return out;
+}
 
 // Collect the text of a parsed XML node (strings, {#text}, nested elements).
 export function textOf(node) {
@@ -18,12 +44,7 @@ export function textOf(node) {
 // Untrusted HTML/markup -> plain text. All tags are stripped, entities decoded.
 // The frontend additionally escapes everything it renders.
 export function toPlainText(input, maxLen) {
-  const stripped = sanitizeHtml(String(input ?? ''), {
-    allowedTags: [],
-    allowedAttributes: {},
-    nonTextTags: ['style', 'script', 'textarea', 'option', 'noscript'],
-  });
-  let text = decodeHTML(stripped).replace(/\s+/g, ' ').trim();
+  let text = stripTags(String(input ?? '')).replace(/\s+/g, ' ').trim();
   if (maxLen && text.length > maxLen) {
     const cut = text.slice(0, maxLen);
     const lastSpace = cut.lastIndexOf(' ');
