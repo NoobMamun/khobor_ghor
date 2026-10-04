@@ -1,4 +1,4 @@
-import { fetchNewspapers, fetchNews } from './api.js';
+import { fetchNewspapers, fetchNews, fetchAll } from './api.js';
 import { esc, formatToday, relativeTime, debounce } from './util.js';
 import { t } from './i18n.js';
 import { FeedView, SearchView, StateView, LoadingView, PAGE } from './components/views.js';
@@ -9,15 +9,54 @@ const el = { papers: $('papers'), sections: $('sections'), view: $('view'), tool
   searchForm: $('searchForm'), searchClear: $('searchClear'), content: $('content') };
 
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
+// Virtual "newspaper" for the landing page: every real newspaper merged into one feed.
+const ALL = { id: 'all', name: 'All sources', nativeName: 'All sources', language: 'en', monogram: 'All', brandColor: '#b4161b', logo: null };
+
 const state = {
   papers: [], active: null, section: 'all', query: '', shown: PAGE,
+  group: 'time',  // landing page layout: 'time' (one merged list) | 'source' (a block per newspaper)
+  sectionMeta: [], failed: [], // canonical section labels; names of papers that failed to load
   data: {},      // newspaper id -> latest API response
   loading: false, refreshing: false, error: null, notice: '', token: 0,
 };
 
 const paper = () => state.papers.find((p) => p.id === state.active);
 const data = () => state.data[state.active];
-const lang = () => paper()?.language || 'bn';
+const lang = () => paper()?.language || 'en';
+
+// Merge every loaded newspaper into the landing-page dataset (newest first, canonical English categories).
+function buildAll() {
+  const papers = state.papers.filter((p) => p.id !== 'all' && state.data[p.id]);
+  const label = Object.fromEntries(state.sectionMeta.map((s) => [s.id, s.label.en]));
+  const articles = papers
+    .flatMap((p) => state.data[p.id].articles.map((a) => ({ ...a, category: label[a.section] || a.category })))
+    .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+  const counts = new Map();
+  for (const a of articles) counts.set(a.section, (counts.get(a.section) || 0) + 1);
+  return {
+    newspaper: 'all', language: 'en', papers, papersById: Object.fromEntries(papers.map((p) => [p.id, p])),
+    articles,
+    sections: state.sectionMeta.filter((s) => counts.has(s.id)).map((s) => ({ id: s.id, label: s.label.en, count: counts.get(s.id) })),
+    fetchedAt: papers.map((p) => state.data[p.id].fetchedAt).sort()[0] || new Date().toISOString(), // oldest = honest "last updated"
+    stale: papers.some((p) => state.data[p.id].stale),
+  };
+}
+
+// Fetch every newspaper in one request; one failing paper doesn't hide the others.
+async function fetchEverything(refresh) {
+  const res = await fetchAll({ refresh });
+  for (const [id, r] of Object.entries(res.results)) if (r) state.data[id] = r;
+  state.failed = state.papers.filter((p) => res.errors?.[p.id]).map((p) => p.name);
+  if (!Object.values(res.results).some(Boolean)) throw new Error('Nothing loaded');
+  return buildAll();
+}
+
+// Colour each source name with its newspaper's colour (set via CSSOM: inline styles are blocked by our CSP).
+function applyBrandColors() {
+  document.querySelectorAll('[data-brand]').forEach((n) => {
+    if (/^#[0-9a-f]{3,8}$/i.test(n.dataset.brand)) n.style.setProperty('--c', n.dataset.brand);
+  });
+}
 
 /* ---------- routing: #/<newspaper>/<section> ---------- */
 function readHash() {
@@ -39,7 +78,7 @@ function renderPapers() {
       <span class="badge" aria-hidden="true">${badge}</span><span class="pname">${esc(p.name)}${sub}</span></button>`;
   }).join('');
   // Set per-paper colour through CSSOM (inline style attributes are blocked by our CSP).
-  el.papers.querySelectorAll('.paper').forEach((b, i) => {
+  el.papers.querySelectorAll('.paper').forEach((b, i) => { // (paper tabs)
     const c = state.papers[i].brandColor;
     b.style.setProperty('--paper-color', /^#[0-9a-f]{3,8}$/i.test(c) ? c : '#333');
   });
@@ -75,7 +114,8 @@ function renderView() {
   if (state.loading && !d) { el.view.innerHTML = LoadingView(); return; }
   if (!d) { el.view.innerHTML = StateView('⚠️', L.errorTitle, state.error || L.errorBody, L.retry); return; }
   if (state.query) el.view.innerHTML = SearchView(d, p, state.query, state.shown);
-  else el.view.innerHTML = FeedView(d, p, d.sections.some((s) => s.id === state.section) ? state.section : 'all', state.shown);
+  else el.view.innerHTML = FeedView(d, p, d.sections.some((s) => s.id === state.section) ? state.section : 'all', state.shown, state.group);
+  applyBrandColors();
 }
 
 function renderAll() {
@@ -97,10 +137,15 @@ async function load(id, { refresh = false, silent = false } = {}) {
     renderAll();
   }
   try {
-    const res = await fetchNews(id, { refresh });
+    let res;
+    if (id === 'all') res = await fetchEverything(refresh);
+    else res = await fetchNews(id, { refresh });
     state.data[id] = res;
+    if (id !== 'all' && state.data.all) state.data.all = buildAll(); // keep the landing page in sync
     if (token === state.token && id === state.active) {
-      state.notice = res.stale ? t(lang()).staleNotice : '';
+      state.notice = id === 'all' && state.failed.length
+        ? `Couldn't load ${state.failed.join(', ')}. Showing the rest.`
+        : res.stale ? t(lang()).staleNotice : '';
     }
   } catch (err) {
     if (token === state.token && id === state.active && !silent) {
@@ -134,13 +179,14 @@ function setSection(id) {
 
 /* ---------- events ---------- */
 document.addEventListener('click', (e) => {
-  const target = e.target.closest('[data-paper],[data-section],[data-refresh],[data-retry],[data-more]');
+  const target = e.target.closest('[data-paper],[data-section],[data-refresh],[data-retry],[data-more],[data-group]');
   if (!target) return;
   if (target.dataset.paper) selectPaper(target.dataset.paper);
   else if (target.dataset.section) setSection(target.dataset.section);
   else if (target.hasAttribute('data-refresh')) load(state.active, { refresh: true });
   else if (target.hasAttribute('data-retry')) load(state.active, { refresh: true });
   else if (target.hasAttribute('data-more')) { state.shown += PAGE; renderView(); }
+  else if (target.dataset.group) { state.group = target.dataset.group; state.shown = PAGE; renderView(); }
 });
 
 // Arrow-key navigation across newspaper tabs
@@ -152,7 +198,7 @@ el.papers.addEventListener('keydown', (e) => {
   el.papers.querySelector('[aria-selected="true"]')?.focus();
 });
 
-$('brand').addEventListener('click', (e) => { e.preventDefault(); state.query = ''; el.searchInput.value = ''; selectPaper(state.papers[0].id); scrollTo({ top: 0 }); });
+$('brand').addEventListener('click', (e) => { e.preventDefault(); state.query = ''; el.searchInput.value = ''; selectPaper('all'); scrollTo({ top: 0 }); });
 
 function toggleSearch(open = el.searchbar.hidden) {
   el.searchbar.hidden = !open;
@@ -213,9 +259,10 @@ document.addEventListener('visibilitychange', autoRefresh);
   el.view.innerHTML = LoadingView();
   try {
     const cfg = await fetchNewspapers();
-    state.papers = cfg.newspapers;
+    state.sectionMeta = cfg.sections;
+    state.papers = [ALL, ...cfg.newspapers];
     const { id, section } = readHash();
-    selectPaper(id || cfg.default, id ? section : 'all');
+    selectPaper(id || 'all', id ? section : 'all'); // landing page by default
   } catch {
     el.view.innerHTML = StateView('⚠️', t('en').errorTitle, t('en').errorBody, t('en').retry);
     el.view.querySelector('[data-retry]').addEventListener('click', () => location.reload());

@@ -9,3 +9,4 @@ async function getJson(url) {
 export const fetchNewspapers = () => getJson('/api/newspapers');
 export const fetchNews = (id, { refresh = false } = {}) =>
   getJson(`/api/news/${encodeURIComponent(id)}${refresh ? '?refresh=1' : ''}`);
+export const fetchAll = ({ refresh = false } = {}) => getJson(`/api/news${refresh ? '?refresh=1' : ''}`);

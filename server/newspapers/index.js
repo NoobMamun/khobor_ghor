@@ -3,9 +3,11 @@
 // Nothing else in the server or the UI needs to change.
 import prothomAlo from './prothom-alo.js';
 import dailyStar from './daily-star.js';
+import guardian from './guardian.js';
+import nytimes from './nytimes.js';
 
-export const newspapers = [prothomAlo, dailyStar];
-// export const newspapers = [prothomAlo, dailyStar, ittefaq, jugantor, ...];
+export const newspapers = [prothomAlo, dailyStar, guardian, nytimes];
+// export const newspapers = [prothomAlo, dailyStar, guardian, nytimes, ittefaq, jugantor, ...];
 
 export const getNewspaper = (id) => newspapers.find((n) => n.id === id);
 

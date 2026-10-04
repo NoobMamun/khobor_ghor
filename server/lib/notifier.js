@@ -62,6 +62,7 @@ export function startNotifier() {
     seen = seen || {};
     try {
       for (const paper of newspapers) {
+        if (paper.notify === false) continue; // this paper opted out of Telegram alerts
         let data;
         try {
           data = await getNews(paper, { refresh: true });

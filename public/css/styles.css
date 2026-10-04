@@ -231,3 +231,33 @@ main.container { max-width: 860px; }
   .card.row .summary { -webkit-line-clamp: 2; font-size: 15px; }
   .meta .ago { display: none; } /* keep phone meta lines short: exact time is enough */
 }
+
+/* ---------- Landing page: compact merged feed ---------- */
+.feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+.feed-head .page-sub { margin: 0 0 6px; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); margin-bottom: 8px; }
+.seg button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; font: 600 13.5px/1 var(--sans); color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* source name in its newspaper colour (blended toward the text colour so it stays readable in both themes) */
+.meta .src, .src-head .src { --c: var(--ink); color: color-mix(in srgb, var(--c) 78%, var(--ink)); font-weight: 700; }
+.meta .src::before, .src-head .src::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 7px; vertical-align: 1px; }
+
+.card.compact { padding: 13px 0; border-top: 1px solid var(--rule); }
+.card.compact:first-child { border-top: 0; }
+.card.compact .meta { margin: 0 0 4px; font-size: 12.5px; }
+.card.compact .cat { color: var(--ink-3); font-weight: 600; }
+.card.compact .headline { font-size: clamp(18px, 2.3vw, 21px); }
+.card.compact .summary { font-size: 14.5px; margin-top: 4px; -webkit-line-clamp: 2; }
+.card.compact:hover .headline { color: var(--brand); }
+
+.src-block { padding: 6px 0 14px; }
+.src-block + .src-block { border-top: 3px solid var(--ink); padding-top: 14px; }
+.src-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.src-head h2 { margin: 0; font: 700 22px/1.3 var(--serif); }
+.link-more { background: none; border: 0; font: 600 13.5px/1 var(--sans); color: var(--brand); padding: 6px 0; }
+.link-more:hover { text-decoration: underline; }
+@media (max-width: 760px) {
+  .card.compact { padding: 12px 0; }
+  .card.compact .headline { font-size: 18px; }
+}

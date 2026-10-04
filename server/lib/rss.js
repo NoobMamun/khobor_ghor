@@ -65,7 +65,7 @@ export function toArticle(item, feed, newspaper) {
     publishedAt: item.publishedAt,
     section: sectionId,
     // Prefer the paper's own (more specific) category label for display, e.g. "জেলা".
-    category: item.rssCategory || sectionLabel,
+    category: (newspaper.useRssCategory !== false && item.rssCategory) || sectionLabel,
     source: newspaper.id,
     url: item.url,
   };

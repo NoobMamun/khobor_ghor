@@ -1,6 +1,6 @@
 # খবরঘর — Bangladesh News Hub
 
-A news discovery portal: pick a newspaper, browse its latest headlines from your chosen sections, search, and open the original article on the publisher's site. Currently: **Prothom Alo** (Bangla) and **The Daily Star** (English).
+A news discovery portal: pick a newspaper, browse its latest headlines from your chosen sections, search, and open the original article on the publisher's site. Currently: **Prothom Alo** (Bangla), **The Daily Star**, **The Guardian** and **The New York Times** (English).
 
 ```
 npm install
@@ -45,11 +45,12 @@ The header tab, section navigation, search, caching, refresh and error handling 
 
 ## Behaviour notes
 
+- **Landing page:** the default **All sources** tab merges every newspaper into one newest-first list (`GET /api/news` returns all papers in one request; one failing paper doesn't hide the rest). Category chips (Bangladesh, Politics, World, Business, Opinion) filter it, and the **By source** toggle groups it per newspaper. Cards show source, category, exact time and a 1–2 sentence summary.
 - **Switching** is client-side; loaded papers are kept in memory, so switching back is instant and revalidated in the background if older than 5 minutes. URL hash (`#/daily-star/sports`) is shareable.
 - **Refresh** button forces a refetch (server throttles to once per 30 s per paper); the page also refreshes itself every 5 min while visible. If a fetch fails but older data exists, the older data is shown with a notice and Retry; with no data, a full error state with Retry.
 - **Search** filters the selected paper's loaded articles (title, summary, category), Bangla and English.
 - **No publisher images.** To avoid any copyright claim the portal never fetches or displays photos or logos from the newspapers: only headline, short summary, section, time and source, linking to the original article. The CSP also blocks remote images.
-- **Focused sections:** each paper has a `sections` allowlist in its config (Prothom Alo: politics + economy; The Daily Star: Bangladesh + opinion). Everything else is dropped on the server, so the feed, search and Telegram alerts only cover those sections. Stories are sorted newest first and de-duplicated; up to 30 per section are kept (`maxPerSection`). Prothom Alo's RSS only exposes its last ~60–95 stories, so its sections can be short.
+- **Focused sections:** each paper has a `sections` allowlist in its config (Prothom Alo: politics + economy; The Daily Star: Bangladesh + opinion; The Guardian: Bangladesh, world, business, opinion; The New York Times: world, business, opinion). Everything else is dropped on the server, so the feed, search and Telegram alerts only cover those sections. Stories are sorted newest first and de-duplicated; up to 30 per section are kept (`maxPerSection`). Prothom Alo's RSS only exposes its last ~60–95 stories, so its sections can be short.
 - Only titles/summaries are shown; nothing of article bodies is stored or displayed.
 
 ## Telegram alerts
@@ -62,4 +63,4 @@ While the server runs, it checks every paper every 3 minutes and sends each newl
 4. Run `npm run telegram:chatid`, paste the printed id as `TELEGRAM_CHAT_ID=` in `.env`.
 5. Run `npm run telegram:test` (you should get a message), then restart `npm start`.
 
-Notes: the first run only records current stories (no flood of old news); at most 8 alerts per paper per round; seen stories are remembered in `data/seen.json` so restarts don't repeat alerts. Alerts only run while the server is running. `.env` is git-ignored and never sent to the browser.
+Notes: the first run only records current stories (no flood of old news); at most 8 alerts per paper per round; a paper can opt out with `notify: false` in its config (The Guardian and The New York Times do); seen stories are remembered in `data/seen.json` so restarts don't repeat alerts. Alerts only run while the server is running. `.env` is git-ignored and never sent to the browser.

@@ -32,6 +32,22 @@ app.get('/api/newspapers', (req, res) => {
   });
 });
 
+// All newspapers in one response: { results: { id: news|null }, errors: { id: message } }.
+// A paper that fails doesn't break the others.
+app.get('/api/news', async (req, res) => {
+  const refresh = req.query.refresh === '1';
+  const settled = await Promise.allSettled(newspapers.map((n) => getNews(n, { refresh })));
+  const results = {};
+  const errors = {};
+  settled.forEach((r, i) => {
+    const id = newspapers[i].id;
+    if (r.status === 'fulfilled') results[id] = r.value;
+    else { results[id] = null; errors[id] = `Could not load ${newspapers[i].name}`; console.error(`[${id}]`, r.reason?.message); }
+  });
+  res.set('Cache-Control', 'no-store');
+  res.json({ results, errors, fetchedAt: new Date().toISOString() });
+});
+
 app.get('/api/news/:id', async (req, res) => {
   const newspaper = getNewspaper(req.params.id);
   if (!newspaper) return res.status(404).json({ error: 'Unknown newspaper' });

@@ -5,6 +5,8 @@ import { toPlainText, safeUrl } from '../lib/text.js';
 import { search } from '../../public/js/components/views.js';
 import dailyStar from '../newspapers/daily-star.js';
 import prothomAlo from '../newspapers/prothom-alo.js';
+import guardian from '../newspapers/guardian.js';
+import nytimes from '../newspapers/nytimes.js';
 
 const DS_FEED = `<?xml version="1.0"?><rss version="2.0"><channel><item>
   <title><a href="/x" hreflang="en">Rates &amp; rules</a></title>
@@ -59,10 +61,18 @@ test('search works for Bangla and English, within title/summary/category', () =>
 
 test('feed only keeps each paper\'s configured sections', async () => {
   const { getNews } = await import('../lib/service.js');
-  for (const paper of [prothomAlo, dailyStar]) {
+  for (const paper of [prothomAlo, dailyStar, guardian, nytimes]) {
     const data = await getNews(paper);
     assert.ok(data.articles.length > 0);
     assert.ok(data.articles.every((a) => paper.sections.includes(a.section)), `${paper.id} leaked a section`);
     assert.equal(new Set(data.articles.map((a) => a.url)).size, data.articles.length, 'duplicates');
   }
+});
+
+test('summaries are trimmed to two sentences', async () => {
+  const { shortSummary } = await import('../../public/js/components/card.js');
+  assert.equal(shortSummary('One. Two! Three?'), 'One. Two!');
+  assert.equal(shortSummary('প্রথম বাক্য। দ্বিতীয় বাক্য। তৃতীয়।'), 'প্রথম বাক্য। দ্বিতীয় বাক্য।');
+  assert.ok(shortSummary('word '.repeat(100)).length <= 222);
+  assert.equal(shortSummary(''), '');
 });
