@@ -1,7 +1,7 @@
 // UI strings follow the selected newspaper's language.
 const dict = {
   bn: {
-    home: 'প্রথম পাতা', topStories: 'শীর্ষ খবর', latest: 'সর্বশেষ', viewAll: 'সব দেখুন →',
+    all: 'সব খবর', allNews: 'সর্বশেষ খবর',
     search: 'খবর খুঁজুন…', refresh: 'রিফ্রেশ', updated: 'সর্বশেষ আপডেট', loadMore: 'আরও দেখুন',
     errorTitle: 'খবর লোড করা যায়নি', errorBody: 'ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', retry: 'আবার চেষ্টা করুন',
     staleNotice: 'নতুন খবর আনা যায়নি। আগের খবর দেখানো হচ্ছে।',
@@ -10,7 +10,7 @@ const dict = {
     readOriginal: 'মূল প্রতিবেদন পড়ুন',
   },
   en: {
-    home: 'Home', topStories: 'Top Stories', latest: 'Latest News', viewAll: 'View all →',
+    all: 'All', allNews: 'Latest news',
     search: 'Search news…', refresh: 'Refresh', updated: 'Last updated', loadMore: 'Load more',
     errorTitle: "Couldn't load the news", errorBody: 'Check your connection and try again.', retry: 'Retry',
     staleNotice: "Couldn't fetch new stories. Showing earlier news.",

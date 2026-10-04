@@ -70,7 +70,7 @@ export function startNotifier() {
           continue;
         }
         const known = new Set(seen[paper.id] || []);
-        const fresh = data.articles.filter((a) => !known.has(a.url));
+        const fresh = data.articles.filter((a) => !known.has(a.url)); // already limited to the paper's chosen sections
         // First ever run only records what exists, so you don't get 30 old headlines at once.
         const toSend = firstRun || !seen[paper.id] ? [] : fresh.slice(0, MAX_PER_ROUND).reverse(); // oldest first
         let failed = false;

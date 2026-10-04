@@ -1,6 +1,6 @@
 # খবরঘর — Bangladesh News Hub
 
-A news discovery portal: pick a newspaper, browse its latest headlines by section, search, and open the original article on the publisher's site. Currently: **Prothom Alo** (Bangla) and **The Daily Star** (English).
+A news discovery portal: pick a newspaper, browse its latest headlines from your chosen sections, search, and open the original article on the publisher's site. Currently: **Prothom Alo** (Bangla) and **The Daily Star** (English).
 
 ```
 npm install
@@ -49,7 +49,7 @@ The header tab, section navigation, search, caching, refresh and error handling 
 - **Refresh** button forces a refetch (server throttles to once per 30 s per paper); the page also refreshes itself every 5 min while visible. If a fetch fails but older data exists, the older data is shown with a notice and Retry; with no data, a full error state with Retry.
 - **Search** filters the selected paper's loaded articles (title, summary, category), Bangla and English.
 - **No publisher images.** To avoid any copyright claim the portal never fetches or displays photos or logos from the newspapers: only headline, short summary, section, time and source, linking to the original article. The CSP also blocks remote images.
-- **Latest 15 only:** each paper is capped at its 15 newest stories (`MAX_ARTICLES` in `server/lib/service.js`, or `maxArticles` in a paper's config), so sections, "Latest" and search only cover those.
+- **Focused sections:** each paper has a `sections` allowlist in its config (Prothom Alo: politics + economy; The Daily Star: Bangladesh + opinion). Everything else is dropped on the server, so the feed, search and Telegram alerts only cover those sections. Stories are sorted newest first and de-duplicated; up to 30 per section are kept (`maxPerSection`). Prothom Alo's RSS only exposes its last ~60–95 stories, so its sections can be short.
 - Only titles/summaries are shown; nothing of article bodies is stored or displayed.
 
 ## Telegram alerts

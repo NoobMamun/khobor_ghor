@@ -1,5 +1,5 @@
-// Prothom Alo — one rich RSS feed (images, Bangla categories). Sections are
-// derived from the first segment of the article URL.
+// Prothom Alo — one RSS feed with every section; sections are derived from the first
+// segment of the article URL. `sections` is an allowlist: everything else is dropped.
 export default {
   id: 'prothom-alo',
   name: 'Prothom Alo',
@@ -11,20 +11,12 @@ export default {
   homepage: 'https://www.prothomalo.com',
   feeds: [{ url: 'https://www.prothomalo.com/feed/' }],
 
+  // Only these sections are shown (রাজনীতি, অর্থনীতি).
+  sections: ['politics', 'business'],
+
   // URL first-segment -> canonical section id
   sectionByPath: {
-    bangladesh: 'bangladesh',
     politics: 'politics',
-    world: 'world',
     business: 'business',
-    sports: 'sports',
-    entertainment: 'entertainment',
-    opinion: 'opinion',
-    lifestyle: 'lifestyle',
-    technology: 'technology',
-    education: 'education',
-    religion: 'religion',
-    video: 'video',
   },
-
 };

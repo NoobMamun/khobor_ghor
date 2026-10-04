@@ -4,7 +4,7 @@ import { parseFeed, toArticle } from './rss.js';
 import { SECTIONS } from '../sections.js';
 
 const TTL_MS = 5 * 60 * 1000; // feed cache lifetime
-const MAX_ARTICLES = 15; // the portal only shows each paper's newest stories (override per paper with maxArticles)
+const MAX_PER_SECTION = 30; // newest stories kept per section (override per paper with maxPerSection)
 const MIN_REFRESH_MS = 30 * 1000; // manual refresh can't bypass the cache more often than this
 const cache = new Cache();
 
@@ -30,7 +30,18 @@ async function loadNewspaper(newspaper) {
   if (!articles.length) throw new Error(errors[0] || 'Feed returned no articles');
 
   articles.sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
-  return { articles: articles.slice(0, newspaper.maxArticles || MAX_ARTICLES), errors, fetchedAt: new Date().toISOString() };
+  // Only the sections this paper is configured to show, newest first, capped per section.
+  const allowed = newspaper.sections ? new Set(newspaper.sections) : null;
+  const cap = newspaper.maxPerSection || MAX_PER_SECTION;
+  const perSection = new Map();
+  const kept = articles.filter((a) => {
+    if (allowed && !allowed.has(a.section)) return false;
+    const n = (perSection.get(a.section) || 0) + 1;
+    perSection.set(a.section, n);
+    return n <= cap;
+  });
+  if (!kept.length) throw new Error('No articles in the configured sections');
+  return { articles: kept, errors, fetchedAt: new Date().toISOString() };
 }
 
 function present(newspaper, data, stale) {

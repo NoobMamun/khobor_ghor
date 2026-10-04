@@ -214,3 +214,20 @@ img { max-width: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
 
+
+/* ---------- Focused feed (single clean column) ---------- */
+main.container { max-width: 860px; }
+.feed .page-title { margin: 14px 0 4px; }
+.rows { display: flex; flex-direction: column; }
+.card.row { padding: 18px 0; border-top: 1px solid var(--rule); }
+.card.row:first-child { border-top: 0; }
+.card.row .headline { font-size: clamp(20px, 2.6vw, 24px); }
+.card.row .summary { font-size: 15.5px; -webkit-line-clamp: 3; }
+.card.row:hover .headline { color: var(--brand); }
+.skel-title { height: 34px; width: 40%; margin: 14px 0 10px; }
+.skel-row { padding: 18px 0; border-top: 1px solid var(--rule); }
+@media (max-width: 760px) {
+  .card.row { padding: 16px 0; }
+  .card.row .summary { -webkit-line-clamp: 2; font-size: 15px; }
+  .meta .ago { display: none; } /* keep phone meta lines short: exact time is enough */
+}

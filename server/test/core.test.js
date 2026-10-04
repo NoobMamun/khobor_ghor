@@ -23,10 +23,10 @@ test('Daily Star: strips markup from titles/descriptions, drops unusable items, 
 });
 
 test('Prothom Alo: section derived from URL path, rss category kept for display', () => {
-  const item = { url: 'https://www.prothomalo.com/sports/cricket/abc', title: 'শিরোনাম', summary: '', publishedAt: null, rssCategory: 'ক্রিকেট' };
+  const item = { url: 'https://www.prothomalo.com/politics/abc', title: 'শিরোনাম', summary: '', publishedAt: null, rssCategory: 'রাজনীতি' };
   const a = toArticle(item, {}, prothomAlo);
-  assert.equal(a.section, 'sports');
-  assert.equal(a.category, 'ক্রিকেট');
+  assert.equal(a.section, 'politics');
+  assert.equal(a.category, 'রাজনীতি');
   assert.equal(toArticle({ ...item, url: 'https://www.prothomalo.com/zzz/1', rssCategory: null }, {}, prothomAlo).section, 'other');
 });
 
@@ -56,3 +56,13 @@ test('search works for Bangla and English, within title/summary/category', () =>
 });
 
 
+
+test('feed only keeps each paper\'s configured sections', async () => {
+  const { getNews } = await import('../lib/service.js');
+  for (const paper of [prothomAlo, dailyStar]) {
+    const data = await getNews(paper);
+    assert.ok(data.articles.length > 0);
+    assert.ok(data.articles.every((a) => paper.sections.includes(a.section)), `${paper.id} leaked a section`);
+    assert.equal(new Set(data.articles.map((a) => a.url)).size, data.articles.length, 'duplicates');
+  }
+});

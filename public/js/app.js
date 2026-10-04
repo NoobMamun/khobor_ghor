@@ -1,7 +1,7 @@
 import { fetchNewspapers, fetchNews } from './api.js';
 import { esc, formatToday, relativeTime, debounce } from './util.js';
 import { t } from './i18n.js';
-import { HomeView, SectionView, SearchView, StateView, LoadingView, PAGE } from './components/views.js';
+import { FeedView, SearchView, StateView, LoadingView, PAGE } from './components/views.js';
 
 const $ = (id) => document.getElementById(id);
 const el = { papers: $('papers'), sections: $('sections'), view: $('view'), toolbar: $('toolbar'), notice: $('notice'),
@@ -49,7 +49,7 @@ function renderSections() {
   const d = data(); const L = t(lang());
   if (!d) { el.sections.innerHTML = ''; return; }
   const tab = (id, label) => `<button class="sec-tab" type="button" data-section="${esc(id)}" ${state.section === id && !state.query ? 'aria-current="true"' : ''}>${esc(label)}</button>`;
-  el.sections.innerHTML = tab('all', L.home) + d.sections.map((s) => tab(s.id, s.label)).join('');
+  el.sections.innerHTML = tab('all', L.all) + d.sections.map((s) => tab(s.id, s.label)).join('');
 }
 
 const refreshIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>';
@@ -75,8 +75,7 @@ function renderView() {
   if (state.loading && !d) { el.view.innerHTML = LoadingView(); return; }
   if (!d) { el.view.innerHTML = StateView('⚠️', L.errorTitle, state.error || L.errorBody, L.retry); return; }
   if (state.query) el.view.innerHTML = SearchView(d, p, state.query, state.shown);
-  else if (state.section !== 'all' && d.sections.some((s) => s.id === state.section)) el.view.innerHTML = SectionView(d, p, state.section, state.shown);
-  else el.view.innerHTML = HomeView(d, p);
+  else el.view.innerHTML = FeedView(d, p, d.sections.some((s) => s.id === state.section) ? state.section : 'all', state.shown);
 }
 
 function renderAll() {
