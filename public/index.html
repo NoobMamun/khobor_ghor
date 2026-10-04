@@ -1,0 +1,74 @@
+﻿<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>খবরঘর — Bangladesh News Hub</title>
+  <meta name="description" content="One place to browse the latest headlines from Prothom Alo, The Daily Star and more Bangladeshi newspapers. Every story links to the original publisher.">
+  <meta name="theme-color" content="#fbfaf7">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23b4161b'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'%3EN%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="masthead">
+    <div class="container utility">
+      <span id="today" class="today"></span>
+      <span class="tagline">Bangladesh News Hub · বাংলাদেশের খবর, এক জায়গায়</span>
+    </div>
+    <div class="container brandrow">
+      <a class="brand" href="#" id="brand" aria-label="খবরঘর home">
+        <span class="brand-bn">খবরঘর</span>
+        <span class="brand-en">Khobor<b>Ghor</b></span>
+      </a>
+      <div class="tools">
+        <button class="icon-btn theme-btn" id="themeToggle" type="button" aria-label="Switch to dark mode" title="Light / Dark">
+          <svg class="sun" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="moon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>        <button class="icon-btn" id="searchToggle" type="button" aria-label="Search" aria-expanded="false" aria-controls="searchbar">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="navwrap">
+    <div class="container">
+      <nav class="papers" id="papers" role="tablist" aria-label="Newspapers"></nav>
+    </div>
+    <div class="searchbar" id="searchbar" hidden>
+      <div class="container">
+        <form class="search" id="searchForm" role="search" autocomplete="off">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="searchInput" type="search" enterkeyhint="search" aria-label="Search news">
+          <button type="button" id="searchClear" class="link-btn" hidden>✕</button>
+        </form>
+      </div>
+    </div>
+    <div class="sections-nav">
+      <div class="container">
+        <nav class="sections" id="sections" aria-label="Sections"></nav>
+      </div>
+    </div>
+  </div>
+
+  <main id="content" class="container" tabindex="-1">
+    <div class="toolbar" id="toolbar"></div>
+    <div id="notice" aria-live="polite"></div>
+    <div id="view"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p><strong>খবরঘর</strong> is a news discovery service. Headlines, summaries and images belong to their publishers; every story opens on the original newspaper's website.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
