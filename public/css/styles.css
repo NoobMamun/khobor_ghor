@@ -1,51 +1,74 @@
+/* ============ Colour system ============
+   Teal palette (yours):  #04222B  #0A3D4A  #10606F  #108894  #4FB8B4  #98D0C6  #E2F4F0
+   Light  : page #E2F4F0 · text #04222B / #0A3D4A / #3F6B73 · links #10606F · accents #108894 · lines #98D0C6-tint
+   Dark   : page #04222B · cards #0A3D4A · text #E2F4F0 / #98D0C6 · accents #4FB8B4
+   Forest : olive-green palette (values read from your second image) as a third theme.
+   Themes: light (default) | dark (also follows the OS) | forest. Switched by the header button. */
 :root {
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --ink: #17171a;
-  --ink-2: #4a4a52;
-  --ink-3: #7b7b85;
-  --rule: #e4e1d8;
-  --rule-strong: #17171a;
-  --chip: #f1eee6;
-  --brand: #d7263d; /* swapped per newspaper at runtime */
-  --portal: #b4161b;
-  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.05);
+  --bg: #E2F4F0;
+  --bg-top: #F4FBFA;          /* soft glow at the very top, like the palette image */
+  --surface: #F4FBFA;
+  --ink: #04222B;
+  --ink-2: #0A3D4A;
+  --ink-3: #3F6B73;
+  --rule: #B5DBD3;
+  --rule-strong: #04222B;
+  --chip: #CBE8E2;
+  --brand: #10606F;           /* text-level accent (links, categories) */
+  --accent: #108894;          /* decorative accent (bars, underline, focus) */
   --serif: "Source Serif 4", "Noto Serif Bengali", Georgia, serif;
   --sans: "Inter", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gutter: 16px;
+  --src-mix: 80%;             /* how much of a newspaper's own colour its name keeps (less on dark themes) */
+  color-scheme: light;
 }
-/* Dark theme: explicit choice (data-theme) wins; otherwise follow the OS setting. */
 :root[data-theme="dark"] {
-  --bg: #111114; --surface: #1a1a1f; --ink: #f2f1ec; --ink-2: #c4c3bc; --ink-3: #8f8f98;
-  --rule: #2c2c33; --rule-strong: #f2f1ec; --chip: #25252b; --shadow: none;
+  --bg: #04222B; --bg-top: #0A3D4A; --surface: #0A3D4A;
+  --ink: #E2F4F0; --ink-2: #98D0C6; --ink-3: #6FAFAA;
+  --rule: #0F4A58; --rule-strong: #E2F4F0; --chip: #0B3744;
+  --brand: #4FB8B4; --accent: #4FB8B4; --src-mix: 35%;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #111114; --surface: #1a1a1f; --ink: #f2f1ec; --ink-2: #c4c3bc; --ink-3: #8f8f98;
-    --rule: #2c2c33; --rule-strong: #f2f1ec; --chip: #25252b; --shadow: none;
+  :root:not([data-theme]) {
+    --bg: #04222B; --bg-top: #0A3D4A; --surface: #0A3D4A;
+    --ink: #E2F4F0; --ink-2: #98D0C6; --ink-3: #6FAFAA;
+    --rule: #0F4A58; --rule-strong: #E2F4F0; --chip: #0B3744;
+    --brand: #4FB8B4; --accent: #4FB8B4; --src-mix: 35%;
     color-scheme: dark;
   }
 }
-.theme-btn .moon { display: none; }
-:root[data-theme="dark"] .theme-btn .sun { display: none; }
-:root[data-theme="dark"] .theme-btn .moon { display: block; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-btn .sun { display: none; }
-  :root:not([data-theme="light"]) .theme-btn .moon { display: block; }
+:root[data-theme="forest"] {
+  --bg: #111A12; --bg-top: #1D2A1B; --surface: #1A2619;
+  --ink: #E6EBD8; --ink-2: #BFC6A3; --ink-3: #8D9670;
+  --rule: #2E3A1F; --rule-strong: #E6EBD8; --chip: #212E1D;
+  --brand: #A9B07C; --accent: #8D9460; --src-mix: 35%;
+  color-scheme: dark;
 }
+
+/* theme button: one icon per theme */
+.theme-btn svg { display: none; }
+:root:not([data-theme]) .theme-btn .i-light, :root[data-theme="light"] .theme-btn .i-light,
+:root[data-theme="dark"] .theme-btn .i-dark, :root[data-theme="forest"] .theme-btn .i-forest { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-btn .i-light { display: none; }
+  :root:not([data-theme]) .theme-btn .i-dark { display: block; }
+}
+
+::selection { background: var(--accent); color: var(--bg); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
-  margin: 0; background: var(--bg); color: var(--ink);
+  margin: 0; color: var(--ink);
+  background: var(--bg) linear-gradient(180deg, var(--bg-top) 0, var(--bg) 520px) no-repeat;
   font: 400 16px/1.55 var(--sans);
 }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 img { max-width: 100%; display: block; }
 .container { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
-.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #fff; padding: 8px 12px; z-index: 99; }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: var(--surface); color: var(--ink); padding: 8px 12px; z-index: 99; }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 3px; }
 [hidden] { display: none !important; }
 
@@ -61,7 +84,7 @@ img { max-width: 100%; display: block; }
 .brandrow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-top: 6px; padding-bottom: 14px; }
 .brand { grid-column: 2; display: flex; align-items: baseline; justify-content: center; gap: 12px; }
 .tools { grid-column: 3; justify-self: end; }
-.brand-bn { font: 700 clamp(30px, 6vw, 46px)/1.2 "Noto Serif Bengali", var(--serif); color: var(--portal); }
+.brand-bn { font: 700 clamp(30px, 6vw, 46px)/1.2 "Noto Serif Bengali", var(--serif); color: var(--brand); }
 .brand-en { font: 600 clamp(14px, 2.4vw, 18px)/1 var(--serif); letter-spacing: .02em; color: var(--ink-2); }
 .brand-en b { font-weight: 700; color: var(--ink); }
 .tools { display: flex; gap: 6px; }
@@ -82,9 +105,9 @@ img { max-width: 100%; display: block; }
   margin-bottom: -1px; transition: color .15s, background .15s;
 }
 .paper:hover { background: var(--chip); color: var(--ink); }
-.paper[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--paper-color); font-weight: 700; }
+.paper[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 700; }
 .paper .badge {
-  width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none;
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; flex: none;
   background: var(--paper-color); color: #fff; font: 700 13px/1 var(--sans); overflow: hidden;
 }
 .paper .badge img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
@@ -122,9 +145,7 @@ img { max-width: 100%; display: block; }
 .btn svg { width: 15px; height: 15px; }
 .spin svg { animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0; padding: 10px 14px; border-radius: 8px; background: #fff4e0; color: #5a3b00; border: 1px solid #f0d9a8; font-size: 14px; }
-:root[data-theme="dark"] .notice { background: #3a2c10; color: #f5dca4; border-color: #5a4418; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .notice { background: #3a2c10; color: #f5dca4; border-color: #5a4418; } }
+.notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0; padding: 10px 14px; border-radius: 16px; background: var(--chip); color: var(--ink); border: 1px solid var(--rule); font-size: 14px; }
 
 /* ---------- Cards ---------- */
 .headline { font-family: var(--serif); font-weight: 700; margin: 0; letter-spacing: -.005em; text-wrap: balance; }
@@ -240,7 +261,7 @@ main.container { max-width: 860px; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 /* source name in its newspaper colour (blended toward the text colour so it stays readable in both themes) */
-.meta .src, .src-head .src { --c: var(--ink); color: color-mix(in srgb, var(--c) 78%, var(--ink)); font-weight: 700; }
+.meta .src, .src-head .src { --c: var(--ink); color: color-mix(in srgb, var(--c) var(--src-mix), var(--ink)); font-weight: 700; }
 .meta .src::before, .src-head .src::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 7px; vertical-align: 1px; }
 
 .card.compact { padding: 13px 0; border-top: 1px solid var(--rule); }

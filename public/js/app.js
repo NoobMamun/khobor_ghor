@@ -10,7 +10,7 @@ const el = { papers: $('papers'), sections: $('sections'), view: $('view'), tool
 
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 // Virtual "newspaper" for the landing page: every real newspaper merged into one feed.
-const ALL = { id: 'all', name: 'All sources', nativeName: 'All sources', language: 'en', monogram: 'All', brandColor: '#b4161b', logo: null };
+const ALL = { id: 'all', name: 'All sources', nativeName: 'All sources', language: 'en', monogram: 'All', brandColor: '#108894', logo: null };
 
 const state = {
   papers: [], active: null, section: 'all', query: '', shown: PAGE,
@@ -120,7 +120,6 @@ function renderView() {
 
 function renderAll() {
   const p = paper();
-  document.documentElement.style.setProperty('--brand', p?.brandColor || '#d7263d');
   el.today.textContent = formatToday(lang());
   el.searchInput.placeholder = t(lang()).search;
   renderPapers(); renderSections(); renderToolbar(); renderNotice(); renderView();
@@ -222,18 +221,22 @@ window.addEventListener('hashchange', () => {
   if (id && (id !== state.active || section !== state.section)) { if (id !== state.active) selectPaper(id, section); else setSection(section); }
 });
 
-/* ---------- light / dark theme (one click; choice is remembered) ---------- */
+/* ---------- theme: one click cycles Light → Dark → Forest (choice is remembered) ---------- */
 const themeBtn = $('themeToggle');
-const isDark = () => (document.documentElement.dataset.theme
-  ? document.documentElement.dataset.theme === 'dark'
-  : matchMedia('(prefers-color-scheme: dark)').matches);
+const THEMES = ['light', 'dark', 'forest'];
+const THEME_NAMES = { light: 'Light', dark: 'Dark', forest: 'Forest' };
+const THEME_COLOR = { light: '#E2F4F0', dark: '#04222B', forest: '#111A12' }; // browser UI colour on phones
+const currentTheme = () => document.documentElement.dataset.theme
+  || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 function syncThemeButton() {
-  themeBtn.setAttribute('aria-label', isDark() ? 'Switch to light mode' : 'Switch to dark mode');
-  themeBtn.title = isDark() ? 'Switch to light mode' : 'Switch to dark mode';
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark() ? '#111114' : '#fbfaf7');
+  const cur = currentTheme();
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  themeBtn.setAttribute('aria-label', `Theme: ${THEME_NAMES[cur]}. Switch to ${THEME_NAMES[next]}`);
+  themeBtn.title = `${THEME_NAMES[cur]} theme — click for ${THEME_NAMES[next]}`;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[cur]);
 }
-themeBtn.addEventListener('click', () => {
-  const next = isDark() ? 'light' : 'dark';
+themeBtn.addEventListener('click', () => { // one click = next theme: Light → Dark → Forest → Light
+  const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
   document.documentElement.dataset.theme = next;
   try { localStorage.setItem('theme', next); } catch { /* private mode: still works for this visit */ }
   syncThemeButton();
