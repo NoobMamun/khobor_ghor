@@ -61,7 +61,8 @@ app.get('/api/news/:id', async (req, res) => {
   }
 });
 
-app.use(express.static(publicDir, { extensions: ['html'], maxAge: '5m' }));
+// maxAge 0: browsers revalidate (ETag) on every load, so edits show immediately
+app.use(express.static(publicDir, { extensions: ['html'], maxAge: 0 }));
 
 export default app; // used by api/index.js when deployed on Vercel (serverless)
 

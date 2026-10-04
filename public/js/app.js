@@ -1,5 +1,5 @@
 import { fetchNewspapers, fetchNews, fetchAll } from './api.js';
-import { esc, formatToday, relativeTime, debounce } from './util.js';
+import { esc, safeHref, formatToday, relativeTime, debounce } from './util.js';
 import { t } from './i18n.js';
 import { FeedView, SearchView, StateView, LoadingView, PAGE } from './components/views.js';
 
@@ -118,11 +118,33 @@ function renderView() {
   applyBrandColors();
 }
 
+// TV-style ticker: newest headlines across all loaded papers, scrolling right to left.
+// Only rebuilt when the headlines change, so the scroll doesn't restart on every re-render.
+let tickerSig = '';
+function renderTicker() {
+  const box = $('ticker'); const track = $('tickerTrack');
+  const items = state.papers
+    .filter((p) => p.id !== 'all' && state.data[p.id])
+    .flatMap((p) => state.data[p.id].articles.map((a) => ({ a, p })))
+    .sort((x, y) => (y.a.publishedAt || '').localeCompare(x.a.publishedAt || ''))
+    .slice(0, 20);
+  box.hidden = !items.length;
+  if (!items.length) return;
+  const sig = items.map((x) => x.a.url).join('|');
+  if (sig === tickerSig) return;
+  tickerSig = sig;
+  const set = items.map(({ a, p }) => `<a class="tick" href="${safeHref(a.url)}" target="_blank" rel="noopener noreferrer">` +
+    `<span class="tick-src">${esc(p.name)}</span><span class="tick-title" lang="${esc(p.language)}">${esc(a.title)}</span></a>`).join('');
+  track.innerHTML = `<div class="tick-set">${set}</div><div class="tick-set" aria-hidden="true">${set.replace(/<a /g, '<a tabindex="-1" ')}</div>`;
+  const chars = items.reduce((n, x) => n + x.a.title.length + x.p.name.length + 8, 0);
+  track.style.setProperty('--dur', `${Math.max(40, Math.round(chars * 0.13))}s`); // ≈60px/s whatever the length
+}
+
 function renderAll() {
   const p = paper();
   el.today.textContent = formatToday(lang());
   el.searchInput.placeholder = t(lang()).search;
-  renderPapers(); renderSections(); renderToolbar(); renderNotice(); renderView();
+  renderPapers(); renderSections(); renderToolbar(); renderNotice(); renderView(); renderTicker();
 }
 
 /* ---------- data loading ---------- */
